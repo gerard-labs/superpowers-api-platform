@@ -92,7 +92,7 @@ Older versions are out of scope. The session hook warns explicitly and points to
 
 ### Out of scope (intentionally not in scope)
 
-- Orchestrator mode (`samurai-build` and similar full-autonomy daemons) — this plugin stays purely Claude-Code-host driven.
+- Orchestrator mode (full-autonomy daemons running outside Claude Code) — this plugin stays purely Claude-Code-host driven.
 - API Platform versions < 4.3 — covered by `gerard:api-platform-upgrade` as a migration target, not as a supported runtime.
 - Symfony versions < 7.4 — same rationale; older LTS lines are out of scope.
 

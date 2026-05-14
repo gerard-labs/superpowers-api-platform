@@ -47,7 +47,7 @@ detect_symfony_apps() {
 # ============================================
 # Walk up from active_app to find the dir that owns the orchestration
 # (Compose / DDEV / Make). For monorepos where composer.json lives in a
-# sub-dir (e.g. samurai/symfony/) but compose.yaml + Makefile live at the
+# sub-dir (e.g. <project>/symfony/) but compose.yaml + Makefile live at the
 # repo root, this is the canonical place from which to run docker / make.
 
 find_orchestration_root() {
