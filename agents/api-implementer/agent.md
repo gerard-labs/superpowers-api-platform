@@ -90,36 +90,18 @@ A mention "I dispatched skill X" in your final report MUST correspond to an actu
 
 If a skill is in the plan's dispatch list, you read it (or invoke it) **before editing** the surface it covers. Not after, not "I know the doctrine".
 
-## ⛔ Anti-patterns API Platform 4.3 — auto-reject
+## ⛔ Anti-patterns — auto-reject
 
-You MUST NOT write any of these in new code. If the plan mentions them, the plan is wrong — escalate by returning a `REQUEST_CHANGES` flag in your report rather than coding the anti-pattern.
+For the canonical list of the 24 base anti-patterns (16 API Platform 4.3 + 8 Symfony 7.4+), invoke `Skill gerard:meta/anti-patterns-audit`. The list is enforced at four layers :
 
-- ❌ `#[ApiFilter(SearchFilter::class, ...)]` — use `parameters: [new QueryParameter(filter: new ExactFilter(), property: 'x')]`
-- ❌ `extends AbstractFilter` — use `implements FilterInterface` + `BackwardCompatibleFilterDescriptionTrait`
-- ❌ `openapiContext: ['deprecated' => true]` — use `openapi: new Model\Operation(deprecated: true)`
-- ❌ `'hydra:member' => ...` in tests — use `'member'` (4.x default `hydra_prefix: false`)
-- ❌ `'hydra:totalItems'`, `'hydra:view'`, `'hydra:next'` in tests
-- ❌ `ApiPlatform\Core\…` imports — use `ApiPlatform\…`
-- ❌ `SerializerAwareProviderInterface`, `SerializableProvider` — deprecated 4.2, removed v5
-- ❌ Scalar ID in DTO payload (`int $customerId`) — IRI-only (`Customer $customer`)
-- ❌ `EntityManager` injected into a Provider — inject repository or service
-- ❌ `Filter::class` without explicit `property:` in 4.3 — required since 4.3
-- ❌ Missing `MaxDepth` on circular relations
-- ❌ Free `string` for status — use `BackedEnum`
-- ❌ Auto-increment `int` ID on public resource — use UUID v7 (`Symfony\Component\Uid\Uuid::v7()`)
-- ❌ `event_listeners_backward_compatibility_layer`, `keep_legacy_inflector` in config — 3.x legacy
-- ❌ Default page size 20 hard-coded in tests — 4.x default is 30
-- ❌ `force_eager: true` on entity with many relations — flip to `false` + targeted join fetches
-- ❌ MCP exposed without rate limit + audit log
-- ❌ JWT in `localStorage` (XSS leak)
-- ❌ CORS `allow_origin: ['*']` + `allow_credentials: true`
+- The `PostToolUse` hook catches the 7 highest-signal regex patterns inline (`hooks/post-tool-use.sh`).
+- You self-audit in step 5 below using the Y/N checklist returned by the meta skill.
+- The gatekeeper applies the full 39-rule pass (24 base + 15 extensions for Make project / tests / AppSec) at review time.
+- `gerard:meta/anti-patterns-audit` is invocable standalone for hors-pipeline audits — by the gatekeeper, by you, or by a dev outside the pipeline.
 
-## Symfony 7.4+ anti-patterns — auto-reject
+If the plan mentions any of these patterns, the plan is wrong — escalate by returning a `REQUEST_CHANGES` flag in your report rather than coding the anti-pattern.
 
-- ❌ `// TODO`, `// FIXME`, code commenté in the diff
-- ❌ `@phpstan-ignore` / `@psalm-suppress` without `// reason:` citing specific framework/vendor constraint
-- ❌ `mixed` in public signature
-- ❌ Symfony 6.4 / 7.0 / 7.1 / 7.2 / 7.3 referenced as supported — this plugin targets 7.4+ LTS
+See `docs/anti-patterns.md` for the user-facing narrative.
 
 ## Implementation workflow
 
@@ -195,26 +177,7 @@ Critical classes = handlers domain, value objects with invariants, aggregates, p
 
 ### Step 5 — Self-audit
 
-Recopy this checklist in your report, fill Y/N per item for the diff:
-
-```
-Anti-patterns API Platform 4.3 — diff check:
-- [Y/N] No #[ApiFilter] used (parameters: [QueryParameter] modern pattern)
-- [Y/N] No extends AbstractFilter
-- [Y/N] No openapiContext
-- [Y/N] No 'hydra:*' in tests
-- [Y/N] No ApiPlatform\Core\ imports
-- [Y/N] IRI-only on relations (no scalar IDs)
-- [Y/N] BackedEnum for statuses
-- [Y/N] Filter has explicit property: (4.3 requirement)
-- [Y/N] MaxDepth on circular relations
-- [Y/N] UUID v7 / ULID for public identifiers
-- [Y/N] No EntityManager injected in Provider
-- [Y/N] Default page size 30 in tests
-- [Y/N] No SerializerAwareProviderInterface / SerializableProvider
-- [Y/N] No event_listeners_backward_compatibility_layer / keep_legacy_inflector
-- [Y/N] MCP tools (if any) have rate limit + audit log
-```
+Invoke `Skill gerard:meta/anti-patterns-audit` against the diff. Copy its Y/N checklist verbatim into your report — the gatekeeper expects the meta skill's exact output shape, and using the skill keeps the checklist in sync with its source of truth.
 
 ### Step 6 — Write memory if you learned something
 
