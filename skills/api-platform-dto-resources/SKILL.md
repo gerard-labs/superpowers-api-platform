@@ -8,6 +8,10 @@ allowed-tools:
   - Bash
   - Glob
   - Grep
+effort:
+  low: SKILL.md only — "Use when" + default workflow + key bullets.
+  high: SKILL.md + reference.md — full doctrine.
+  xhigh: SKILL.md + reference.md + project overrides (.claude/skills/*/api-platform-dto-resources/) + edge cases.
 ---
 
 # API Platform 4.3 — Input/Output DTOs (+ Object Mapper 4.3)

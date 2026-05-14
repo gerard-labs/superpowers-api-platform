@@ -101,7 +101,7 @@ console:
 - `$(wordlist 2,$(words X),X)` returns everything from word 2 onward — the args passed after the main target.
 - `%: @:` is a wildcard rule that turns the extra args into no-op targets so `make` doesn't fail with "no rule to make target".
 
-For multi-word args with spaces, special chars, or shell-significant tokens, this can break. Document a direct `docker compose exec` fallback in the project's CLAUDE.md (samurai does this).
+For multi-word args with spaces, special chars, or shell-significant tokens, this can break. Document a direct `docker compose exec` fallback in the project's CLAUDE.md.
 
 ## 5. The `$(call run_in_php_project, ...)` idiom
 
@@ -154,8 +154,8 @@ To run multiple worktrees in parallel without container/volume collisions:
 export COMPOSE_PROJECT_NAME := $(if $(filter $(NAME),$(notdir $(CURDIR))),$(NAME),$(NAME)-$(notdir $(CURDIR)))
 ```
 
-- On the main checkout (e.g. `samurai/`), `notdir $(CURDIR)` is `samurai` → matches `$(NAME)` → project name is just `$(NAME)`.
-- On a worktree (e.g. `samurai/.claude/worktrees/feat-x/`), `notdir $(CURDIR)` is `feat-x` → doesn't match → project name is `samurai-feat-x`.
+- On the main checkout (e.g. `<project>/`), `notdir $(CURDIR)` is `<project>` → matches `$(NAME)` → project name is just `$(NAME)`.
+- On a worktree (e.g. `<project>/.claude/worktrees/feat-x/`), `notdir $(CURDIR)` is `feat-x` → doesn't match → project name is `<project>-feat-x`.
 
 This is invisible to most Make targets but **critical** for any custom target that touches Docker resources by name (volumes, networks, Traefik routers).
 

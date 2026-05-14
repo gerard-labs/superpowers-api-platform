@@ -139,7 +139,7 @@ const LEGACY_RULES: Rule[] = [
     id: 'symfony-pre-7-4',
     pattern: /\bSymfony\s+(3\.|4\.|5\.|6\.0|6\.1|6\.2|6\.3|6\.4|7\.0|7\.1|7\.2|7\.3)\b/i,
     message: 'This plugin targets Symfony 7.4 LTS+ only. Older versions should not appear as supported.',
-    allowIn: ['skills/api-platform-upgrade/'],
+    allowIn: ['skills/api-platform-upgrade/', 'docs/anti-patterns.md'],
   },
 ];
 
@@ -180,7 +180,20 @@ function lintSkillStructure(): void {
       }
     }
 
-    const desc = (content.match(/\ndescription:\s*(.+)\n/) || [])[1] || '';
+    // Parse description from frontmatter, supporting both single-line
+    // `description: "..."` and YAML block scalars `description: >` followed
+    // by indented continuation lines (terminated by the next non-indented key).
+    let desc = '';
+    const inlineMatch = content.match(/\ndescription:\s*(.+)\n/);
+    const inlineDesc = inlineMatch ? inlineMatch[1].trim() : '';
+    if (inlineDesc && inlineDesc !== '>' && inlineDesc !== '|') {
+      desc = inlineDesc;
+    } else {
+      const blockMatch = content.match(/\ndescription:\s*[>|]\s*\n([\s\S]*?)\n(?=\S)/);
+      if (blockMatch) {
+        desc = blockMatch[1].replace(/\s+/g, ' ').trim();
+      }
+    }
     if (desc.length < 40) {
       console.error(`[weak-description] ${entry.name}: description too short`);
       failed = true;

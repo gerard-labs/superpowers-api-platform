@@ -1,8 +1,8 @@
 # gerard skills map
 
-Full index of the 53 skills shipped by the plugin. Each line points to where the deep content lives. The plugin targets **API Platform 4.3+** running on **Symfony 7.4 LTS+** exclusively.
+Full index of the 53 skills shipped by the v1.0 plugin. Each line points to where the deep content lives. The plugin targets **API Platform 4.3+** running on **Symfony 7.4 LTS+** exclusively.
 
-> **See also**: pipeline overview ([`docs/symfony/pipeline-overview.md`](docs/symfony/pipeline-overview.md)), 7 agents ([`docs/symfony/agentic-personas.md`](docs/symfony/agentic-personas.md)), state files ([`docs/symfony/state-files-protocol.md`](docs/symfony/state-files-protocol.md)), marker protocol, project skills layer.
+> **See also**: [overview](docs/overview.md) (5-min read), [how-it-works](docs/how-it-works.md) (architecture), [agents](docs/agents.md) (3 agents), [hooks](docs/hooks.md) (5 hooks), [skills](docs/skills.md) (catalog by domain), [anti-patterns](docs/anti-patterns.md) (39-rule SoT).
 
 ## API Platform 4.3 (20)
 
@@ -40,7 +40,7 @@ Full index of the 53 skills shipped by the plugin. Each line points to where the
 ### Migration
 - `gerard:api-platform-upgrade` — Migration 3.x / 4.0–4.2 → 4.3. Only skill where legacy patterns are documented (Rector + PHPStan rule + Deptrac tooling).
 
-## Symfony 7.4+ core (24)
+## Symfony 7.4+ core (23)
 
 ### Messaging & async
 - `gerard:symfony-messenger` — Async handling, transports, middleware.
@@ -73,19 +73,24 @@ Full index of the 53 skills shipped by the plugin. Each line points to where the
 - `gerard:strategy-pattern` — Tagged services pattern.
 
 ### Testing
-- `gerard:tdd-with-pest` — RED-GREEN-REFACTOR with Pest.
-- `gerard:tdd-with-phpunit` — RED-GREEN-REFACTOR with PHPUnit.
+- `gerard:tdd-php` — RED-GREEN-REFACTOR with Pest or PHPUnit (fusion of tdd-with-pest + tdd-with-phpunit, framework chosen per session via `test_framework` from session-start hook).
 - `gerard:functional-tests` — WebTestCase for non-API (forms, redirects, CSRF, flash messages).
 - `gerard:test-doubles-mocking` — Mocks, fakes, in-memory adapters.
 
-## Workflow (9)
+## Workflow (8)
 
 - `gerard:using-symfony-superpowers` — Entry point + command map.
 - `gerard:runner-selection` — Docker / DDEV / FrankenPHP / Make / host detection.
 - `gerard:makefile-discipline` — `Makefile` (boilerplate, read-only) vs `Makefile-solution` (project-owned) split, `$(MAKEFILE_LIST)` help aggregation, `##@ Group` conventions, Docker wrappers, anti-patterns that get wiped at boilerplate bump.
-- `gerard:bootstrap-check` — Project verification.
-- `gerard:daily-workflow` — Day-to-day patterns.
+- `gerard:daily-workflow` — Day-to-day patterns (absorbs the former bootstrap-check skill — project verification is now step 0 of the daily flow).
 - `gerard:effective-context` — Context management for AI sessions.
 - `gerard:brainstorming` — Structured brainstorming.
 - `gerard:writing-plans` — Implementation plans.
 - `gerard:executing-plans` — Checkpointed execution.
+
+## Cross-cutting (2)
+
+Skills consumed by other skills, agents, or hooks rather than tied to a single API Platform surface. They live at the top level of `skills/` like all others — Claude Code's plugin loader does not recurse, so a "meta/" sub-namespace would be invisible.
+
+- `gerard:anti-patterns-audit` — Standalone audit of the current diff against API Platform 4.3 + Symfony 7.4+ anti-patterns. Returns a Y/N checklist with `file:line` evidence. **Source of truth** for the 24 base rules. Invoked by `api-implementer` (Step 5 self-audit), `gerard-gatekeeper` (full 39-rule pass), `hooks/post-tool-use.sh` (7-regex fast feedback), and standalone by devs. See [`docs/anti-patterns.md`](docs/anti-patterns.md) for the user-facing narrative.
+- `gerard:goal-patterns` — Templates for the `/goal` condition. 8 story-shape addenda (`new-resource`, `new-operation`, `new-filter`, `new-state-flow`, `migration`, `bugfix`, `refactor`, `security-hardening`) + a `generic` fallback = 9 patterns total. Used by the `/api` command to compose the `/goal` condition based on the detected story shape. See [`docs/goal-patterns.md`](docs/goal-patterns.md).

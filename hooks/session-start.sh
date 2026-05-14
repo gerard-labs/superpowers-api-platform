@@ -15,6 +15,11 @@ MIN_SYMFONY_MAJOR=7
 MIN_SYMFONY_MINOR=4
 MIN_API_PLATFORM_MAJOR=4
 MIN_API_PLATFORM_MINOR=3
+# Claude Code 2.1.139 introduces native /goal + Monitor + worktree isolation,
+# which the v1.0 architect-trio dispatch relies on.
+MIN_CLAUDE_CODE_MAJOR=2
+MIN_CLAUDE_CODE_MINOR=1
+MIN_CLAUDE_CODE_PATCH=139
 
 # ============================================
 # 1. SYMFONY PROJECT DETECTION
@@ -47,7 +52,7 @@ detect_symfony_apps() {
 # ============================================
 # Walk up from active_app to find the dir that owns the orchestration
 # (Compose / DDEV / Make). For monorepos where composer.json lives in a
-# sub-dir (e.g. samurai/symfony/) but compose.yaml + Makefile live at the
+# sub-dir (e.g. <project>/symfony/) but compose.yaml + Makefile live at the
 # repo root, this is the canonical place from which to run docker / make.
 
 find_orchestration_root() {
@@ -155,6 +160,36 @@ version_gte() {
   if (( am < rm )); then return 1; fi
   if (( ami >= rmi )); then return 0; fi
   return 1
+}
+
+# Returns 0 if M.m.p >= required, 1 otherwise. Args: a_major a_minor a_patch r_major r_minor r_patch
+version_gte3() {
+  local am="$1" ami="$2" ap="$3" rm="$4" rmi="$5" rp="$6"
+  if (( am > rm )); then return 0; fi
+  if (( am < rm )); then return 1; fi
+  if (( ami > rmi )); then return 0; fi
+  if (( ami < rmi )); then return 1; fi
+  if (( ap >= rp )); then return 0; fi
+  return 1
+}
+
+# Detect Claude Code version. Prefers CLAUDE_CODE_VERSION env var (Claude Code
+# 2.1+ exports this), falls back to `claude --version`. Returns "unknown" if
+# unavailable. Output format: M.m.p (e.g. 2.1.139).
+get_claude_code_version() {
+  if [[ -n "${CLAUDE_CODE_VERSION:-}" ]]; then
+    echo "$CLAUDE_CODE_VERSION" | sed -E 's/^v?([0-9]+\.[0-9]+\.[0-9]+).*/\1/'
+    return
+  fi
+  if command -v claude &>/dev/null; then
+    local raw
+    raw=$(claude --version 2>/dev/null | head -1 || true)
+    if [[ -n "$raw" ]]; then
+      echo "$raw" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1
+      return
+    fi
+  fi
+  echo "unknown"
 }
 
 # ============================================
@@ -433,7 +468,8 @@ main() {
     active_app_relative="${active_app#$orchestration_root/}"
   fi
 
-  local symfony_version api_platform_info docker_type docker_running test_framework runner_info makefile_info
+  local symfony_version api_platform_info docker_type docker_running test_framework runner_info makefile_info claude_code_version
+  claude_code_version=$(get_claude_code_version)
   symfony_version=$(get_symfony_version "$active_app")
   api_platform_info=$(detect_api_platform "$active_app")
   docker_type=$(detect_docker_type "$orchestration_root")
@@ -460,6 +496,20 @@ main() {
   # ============================================
 
   local warnings=()
+
+  # Claude Code version check (v1.0 requires 2.1.139+ for native /goal + Monitor + worktree)
+  local claude_code_supported="false"
+  if [[ "$claude_code_version" != "unknown" ]]; then
+    local cc_major cc_minor cc_patch
+    cc_major=$(echo "$claude_code_version" | cut -d. -f1)
+    cc_minor=$(echo "$claude_code_version" | cut -d. -f2)
+    cc_patch=$(echo "$claude_code_version" | cut -d. -f3)
+    if version_gte3 "$cc_major" "$cc_minor" "$cc_patch" "$MIN_CLAUDE_CODE_MAJOR" "$MIN_CLAUDE_CODE_MINOR" "$MIN_CLAUDE_CODE_PATCH"; then
+      claude_code_supported="true"
+    else
+      warnings+=("Claude Code $claude_code_version detected. gerard v1.0 requires ${MIN_CLAUDE_CODE_MAJOR}.${MIN_CLAUDE_CODE_MINOR}.${MIN_CLAUDE_CODE_PATCH}+ for native /goal, Monitor, and worktree isolation. Upgrade with: claude --update.")
+    fi
+  fi
 
   # Symfony version check
   local symfony_supported="false"
@@ -571,6 +621,10 @@ main() {
   "active_app": "$active_app",
   "orchestration_root": "$orchestration_root",
   "active_app_relative": "$active_app_relative",
+  "claude_code": {
+    "version": "$claude_code_version",
+    "meets_min_2_1_139": $claude_code_supported
+  },
   "symfony": {
     "version": "$symfony_version",
     "is_lts_7_4_or_higher": $symfony_supported

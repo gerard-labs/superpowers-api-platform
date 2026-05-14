@@ -43,7 +43,7 @@ For `make`, also expose any additional canonical targets the hook discovered: `m
 For projects where `composer.json` lives in a sub-dir (`app/`, `symfony/`, `backend/`, etc.) but the orchestration files (Makefile / compose.yaml / .ddev) live at the repo root:
 
 ```
-samurai/                          ← orchestration_root
+<project>/                        ← orchestration_root
 ├── Makefile                       ← detected
 ├── Makefile-solution
 ├── docker-compose.yml
@@ -136,7 +136,7 @@ If the repo has several `composer.json` files (one per app), `cd` to the app roo
 
 ### `make console <multi-word command>` fails
 
-Some Make conventions parse extra args via `MAKECMDGOALS` and forward them to the underlying `bin/console`. Quirky multi-word args (with spaces, options, etc.) may break the parser. The samurai CLAUDE.md documents a direct `docker compose exec` fallback for these cases. When the hook detects Make, **prefer `make console` for simple commands** but document the fallback for complex invocations.
+Some Make conventions parse extra args via `MAKECMDGOALS` and forward them to the underlying `bin/console`. Quirky multi-word args (with spaces, options, etc.) may break the parser. A direct `docker compose exec` fallback should be documented in the project's CLAUDE.md for these cases. When the hook detects Make, **prefer `make console` for simple commands** but document the fallback for complex invocations.
 
 ## Mapping to session hook output
 

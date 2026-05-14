@@ -72,6 +72,60 @@ function parseFrontmatter(content: string): Record<string, string | string[]> | 
   return frontmatter;
 }
 
+// Directories under skills/ that act as namespaces (contain sub-skills) rather
+// than skills themselves. Each child directory of a namespace is validated as
+// its own skill.
+const SKILL_NAMESPACES = new Set(['meta']);
+
+function validateSkillDir(skillDir: string, expectedName: string): boolean {
+  const skillFile = path.join(skillDir, 'SKILL.md');
+
+  if (!fs.existsSync(skillFile)) {
+    errors.push({
+      file: skillDir,
+      message: 'Missing SKILL.md file',
+    });
+    return false;
+  }
+
+  const content = fs.readFileSync(skillFile, 'utf-8');
+  const frontmatter = parseFrontmatter(content);
+
+  if (!frontmatter) {
+    errors.push({
+      file: skillFile,
+      message: 'Missing or invalid frontmatter',
+    });
+    return false;
+  }
+
+  if (!frontmatter.name) {
+    errors.push({
+      file: skillFile,
+      message: 'Missing "name" in frontmatter',
+    });
+  } else if (typeof frontmatter.name === 'string' && frontmatter.name.includes(':')) {
+    errors.push({
+      file: skillFile,
+      message: `Name must NOT contain a namespace prefix, got "${frontmatter.name}" — Claude Code applies the plugin namespace automatically`,
+    });
+  } else if (typeof frontmatter.name === 'string' && frontmatter.name !== expectedName) {
+    errors.push({
+      file: skillFile,
+      message: `Name "${frontmatter.name}" does not match directory "${expectedName}"`,
+    });
+  }
+
+  if (!frontmatter.description || frontmatter.description.trim() === '') {
+    errors.push({
+      file: skillFile,
+      message: 'Missing or empty "description" in frontmatter',
+    });
+  }
+
+  return true;
+}
+
 function validateSkills(): void {
   console.log('Validating skills...');
 
@@ -92,55 +146,21 @@ function validateSkills(): void {
       continue;
     }
 
-    const skillDir = path.join(SKILLS_DIR, entry.name);
-    const skillFile = path.join(skillDir, 'SKILL.md');
-
-    if (!fs.existsSync(skillFile)) {
-      errors.push({
-        file: skillDir,
-        message: 'Missing SKILL.md file',
-      });
+    if (SKILL_NAMESPACES.has(entry.name)) {
+      const nsDir = path.join(SKILLS_DIR, entry.name);
+      const children = fs.readdirSync(nsDir, { withFileTypes: true });
+      for (const child of children) {
+        if (!child.isDirectory()) continue;
+        if (validateSkillDir(path.join(nsDir, child.name), child.name)) {
+          validCount++;
+        }
+      }
       continue;
     }
 
-    const content = fs.readFileSync(skillFile, 'utf-8');
-    const frontmatter = parseFrontmatter(content);
-
-    if (!frontmatter) {
-      errors.push({
-        file: skillFile,
-        message: 'Missing or invalid frontmatter',
-      });
-      continue;
+    if (validateSkillDir(path.join(SKILLS_DIR, entry.name), entry.name)) {
+      validCount++;
     }
-
-    if (!frontmatter.name) {
-      errors.push({
-        file: skillFile,
-        message: 'Missing "name" in frontmatter',
-      });
-    } else if (typeof frontmatter.name === 'string' && frontmatter.name.includes(':')) {
-      // The `gerard:` namespace is applied by Claude Code from the plugin name
-      // in plugin.json. Skill `name:` frontmatter must be bare (no prefix).
-      errors.push({
-        file: skillFile,
-        message: `Name must NOT contain a namespace prefix, got "${frontmatter.name}" — Claude Code applies the plugin namespace automatically`,
-      });
-    } else if (typeof frontmatter.name === 'string' && frontmatter.name !== entry.name) {
-      errors.push({
-        file: skillFile,
-        message: `Name "${frontmatter.name}" does not match directory "${entry.name}"`,
-      });
-    }
-
-    if (!frontmatter.description || frontmatter.description.trim() === '') {
-      errors.push({
-        file: skillFile,
-        message: 'Missing or empty "description" in frontmatter',
-      });
-    }
-
-    validCount++;
   }
 
   console.log(`  Found ${validCount} valid skills`);
@@ -269,13 +289,23 @@ function validateAgents(): void {
     return;
   }
 
-  const files = fs.readdirSync(AGENTS_DIR);
+  const entries = fs.readdirSync(AGENTS_DIR);
   let validCount = 0;
 
-  for (const file of files) {
-    if (!file.endsWith('.md')) continue;
+  for (const entry of entries) {
+    const entryPath = path.join(AGENTS_DIR, entry);
+    const stat = fs.statSync(entryPath);
 
-    const agentFile = path.join(AGENTS_DIR, file);
+    let agentFile: string;
+    if (stat.isDirectory()) {
+      agentFile = path.join(entryPath, 'agent.md');
+      if (!fs.existsSync(agentFile)) continue;
+    } else if (entry.endsWith('.md')) {
+      agentFile = entryPath;
+    } else {
+      continue;
+    }
+
     const content = fs.readFileSync(agentFile, 'utf-8');
     const frontmatter = parseFrontmatter(content);
 
@@ -301,7 +331,8 @@ function validateAgents(): void {
       });
     }
 
-    // Validate skill references exist
+    // Validate skill references exist. The plugin loader scans
+    // skills/<name>/SKILL.md (one level only) — sub-namespaces are unsupported.
     if (frontmatter.skills && Array.isArray(frontmatter.skills)) {
       for (const skill of frontmatter.skills) {
         const skillSlug = skill.replace('gerard:', '');
