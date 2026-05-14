@@ -2,10 +2,11 @@
 name: goal-patterns
 description: >
   Catalog of `/goal` condition templates used by `/api`. One base condition
-  + 5 shape-specific addenda (new-resource, new-operation, new-filter,
-  new-state-flow, migration). The `/api` command reads these templates at
-  step 4 to compose the final goal condition. Wiring skill (consumed by a
-  command, not by an agent's per-surface doctrine).
+  + 8 shape-specific addenda (new-resource, new-operation, new-filter,
+  new-state-flow, migration, bugfix, refactor, security-hardening) + a
+  generic fallback = 9 patterns total. The `/api` command reads these
+  templates at step 4 to compose the final goal condition. Wiring skill
+  (consumed by a command, not by an agent's per-surface doctrine).
 allowed-tools:
   - Read
 effort:

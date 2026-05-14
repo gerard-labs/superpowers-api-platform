@@ -184,16 +184,44 @@ The command is a markdown contract that Claude Code interprets : the `!` bang-co
 | F3 | Plan énoncé for Test 2 ("PostToolUse blocks `#[ApiFilter`") is imprecise. Hook intentionally has only 7 high-signal regexes per `docs/anti-patterns.md`. `#[ApiFilter]` is rule 1 of the gatekeeper. | None (doc-aligned) | Reinterpret the plan énoncé. No code change. |
 | F4 | UserPromptSubmit hook : keyword `search` matches `filter\|search\|sort\|order` → `api-platform-filters` even when context is McpTool search. False positive on hint only — not blocking. | Low | Defer to v1.1. |
 | F5 | **Claude Code's plugin loader does not recurse into `skills/`** — `skills/meta/<name>/SKILL.md` was invisible at runtime. Caught by an empirical smoke test (`claude -p --plugin-dir <path>`) that returned 51 instead of 53 skills. **rc1 included this bug.** Every `gerard:meta/*` invocation would have failed with "Unknown skill". | **Critical** (would have broken `/api` pipeline) | **Fixed** — flattened both skills (`anti-patterns-audit`, `goal-patterns`) to `skills/<name>/`. All references updated across the codebase (agents, commands, docs, README, RELEASE-NOTES, CONTRIBUTING, skills-map, v1.0-plan, tests, scripts). Linter parser fixed (was matching only single-line descriptions ; now handles YAML block scalars). Skills' `Use when` / `Default workflow` / `Guardrails` / `Output contract` sections completed (previously hidden by the `meta/` sub-namespace and thus untested). Re-tagged **v1.0.0-rc2** on the fix commit. |
+| F6 | **`skills-map.md` listed bogus goal-pattern shape names** (`feature / refactor / migration / hardening / bugfix / perf / docs / appsec`) — not what `skills/goal-patterns/SKILL.md` actually declares (`new-resource`, `new-operation`, `new-filter`, `new-state-flow`, `migration`, `bugfix`, `refactor`, `security-hardening`, `generic`). | Important (user-facing drift) | **Fixed** in the audit pass |
+| F7 | **`skills/goal-patterns/SKILL.md` frontmatter undercounted addenda** (said 5, has 8 + generic = 9). | Important (frontmatter is the metadata consumers read first) | **Fixed** |
+| F8 | **`docs/symfony/` directory survived Session 2 cleanup** with 3 orphan files. Not referenced by any live doc. | Important (dead weight, source of confusion) | **Fixed** — `git rm -r` |
+| F9 | **`agents/gerard-gatekeeper/agent.md` frontmatter said "24+ rule"** — underspecified vs the actual 39-rule pass documented in `docs/anti-patterns.md`. | Minor (clarity) | **Fixed** — explicit "39-rule (24 base + 15 extensions)" |
 
 ---
 
 ## Interactive E2E findings
 
-Tests 1 and 4 were **skipped by user decision** (see their sections). The remaining empirical confidence comes from :
-- 5 hooks isolation-tested with mock payloads — all behave per spec.
-- Validators (`validate_skills.ts`) pass after the F1 fix.
-- Static review of `commands/api-finalize.md`, `commands/api.md`, `commands/api-doctrine.md` — all internally consistent.
-- The 3 agents' frontmatter resolved against existing skills — no dangling refs.
+Tests 1 and 4 were **skipped by user decision** (see their sections). After F5 was caught and fixed, the user requested a deeper empirical validation : `claude -p --plugin-dir <path>` smoke tests + an LLM-driven doc audit. Both run in the fixture.
+
+### Empirical smoke tests (claude -p mode)
+
+| # | Test | Expected | Result |
+|---|---|---|---|
+| E1 | Invoke `Skill gerard:api-platform-resources` and dump first 200 chars | Returns the SKILL.md content with `Base directory: skills/api-platform-resources/` + heading | ✅ Match |
+| E2 | List every available agent via Task tool / @-mention | 3 gerard agents (`api-architect-trio`, `api-implementer`, `gerard-gatekeeper`) plus 4 built-ins (`claude`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`) | ✅ Match — TOTAL: 7 |
+| E3 | Write tool on `/tmp/.env.local` | PreToolUse hook denies, returns gerard-branded message | ✅ Verbatim hook message ("gerard pre-tool-use blocked write to /tmp/.env.local: filename matches a secret pattern…") |
+| E4 | Write tool on `/tmp/test-anti-pattern.php` with `dd($this);` | PostToolUse hook blocks, regex hit on `dd(` | ✅ Verbatim block message ("gerard post-tool-use regex scan found anti-patterns… debug call must not ship — line 4: dd(\$this);") |
+| E5 | Ask Claude to summarize `commands/api.md` workflow | Sub-Claude reads the command and describes pre-flight → architect-trio → /goal loop → finalize-banner | ✅ Match (correctly classifies `Add Product resource` as `new-resource` shape, identifies the 4-bullet base + addendum composition, mentions 12-turn cap) |
+
+### LLM-driven documentation audit
+
+An Explore agent was tasked with reading 21 files (README, RELEASE-NOTES, CONTRIBUTING, skills-map, 11 docs/, 3 agents/, 3 commands/) and flagging count mismatches, broken links, naming drift, version mismatches, and cross-doc contradictions. Findings :
+
+| Severity | Finding | Fix |
+|---|---|---|
+| Critical | `skills-map.md` L96 listed bogus shape names (`feature / refactor / migration / hardening / bugfix / perf / docs / appsec`) instead of the real ones | **Fixed** — replaced with `new-resource / new-operation / new-filter / new-state-flow / migration / bugfix / refactor / security-hardening` + `generic` fallback (9 total) |
+| Critical | `skills/goal-patterns/SKILL.md` frontmatter said "5 shape-specific addenda" but the body declares 8 + generic | **Fixed** — frontmatter now says "8 shape-specific addenda + generic = 9 patterns total" |
+| Important | `docs/symfony/` directory contained 3 orphan files (`api-platform-4.3-overview.md`, `api-platform-anti-patterns.md`, `api-platform-config-4.3.md`) — supposed to be deleted in Session 2 but survived. Not linked from anywhere live. | **Fixed** — `git rm -r docs/symfony/` |
+| Minor | `agents/gerard-gatekeeper/agent.md` frontmatter said "24+ rule anti-pattern checklist" — underspecified vs the 39-rule reality documented in `docs/anti-patterns.md` | **Fixed** — frontmatter now says "39-rule anti-pattern checklist (24 base = 16 AP 4.3 + 8 Symfony 7.4+ ; plus 15 extensions = 1 Make project + 7 tests + 7 AppSec)" |
+
+The agent also verified clean :
+- Plugin version v1.0.0 consistent across `plugin.json`, `marketplace.json`, README, RELEASE-NOTES.
+- Model assignments (Opus 4.7 xhigh / Sonnet 4.6 / Haiku 4.5) consistent across README, agents, docs.
+- Count totals : 53 skills + 3 commands + 3 agents + 5 hooks ✓
+- 39-rule total (24 + 15) ✓
+- Zero residual `gerard:meta/X` or `skills/meta/X` references outside the test report's own F5 description.
 
 ---
 

@@ -4,9 +4,10 @@ description: >
   Review stage gatekeeper. Last line of defense before merge. Fresh-session
   adversarial reviewer. Reads agents/gerard-gatekeeper/memory/ for past
   anti-patterns caught on this project, classifies the diff
-  (code/docs/config × API Platform area × surface), applies a 24+ rule
-  anti-pattern checklist (16 AP 4.3 + 8 Symfony 7.4+ + tests + AppSec
-  embedded), emits a ===EVIDENCE=== block, caps unverified claims, detects
+  (code/docs/config × API Platform area × surface), applies a 39-rule
+  anti-pattern checklist (24 base = 16 AP 4.3 + 8 Symfony 7.4+ ; plus 15
+  extensions = 1 Make project + 7 tests + 7 AppSec), emits a
+  ===EVIDENCE=== block, caps unverified claims, detects
   skill-dispatch theatre, and returns `VERDICT: APPROVE` or
   `VERDICT: REQUEST_CHANGES` as the first non-empty line. Out-of-scope
   section mandatory on APPROVE. Writes memory/ at end.
