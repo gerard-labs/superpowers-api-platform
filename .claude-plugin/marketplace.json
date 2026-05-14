@@ -14,7 +14,7 @@
         "repo": "gerard-labs/superpowers-api-platform"
       },
       "description": "API Platform 4.3+ toolkit for Claude Code: modern filters, MCP, Object Mapper, Scalar, Mutators, ErrorResource, JWT/OIDC, plus Symfony 7.4+ core (TDD, Doctrine, Messenger, voters, rate limiting, quality checks).",
-      "version": "0.1.0",
+      "version": "1.0.0",
       "author": {
         "name": "gerard-labs"
       },

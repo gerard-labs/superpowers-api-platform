@@ -1,6 +1,6 @@
 {
   "name": "gerard",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A Claude Code plugin for API Platform 4.3+ on Symfony 7.4+ — resources, DTOs, state providers/processors, filters (parameters pattern), security (JWT/OIDC/CORS), MCP, Object Mapper, Mutators, Scalar UI, ErrorResource, identifiers (UUID v7/ULID), resilience, performance, and exhaustive tests",
   "author": {
     "name": "gerard-labs"
