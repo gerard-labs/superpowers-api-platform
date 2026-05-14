@@ -38,8 +38,7 @@ skills:
   - gerard:api-platform-user
   - gerard:api-platform-file-upload
   - gerard:api-platform-upgrade
-  - gerard:tdd-with-pest
-  - gerard:tdd-with-phpunit
+  - gerard:tdd-php
   - gerard:runner-selection
   - gerard:makefile-discipline
 memory: project
@@ -152,8 +151,7 @@ From the plan header `**API Platform area:**`, determine which `gerard:*` skills
 | User entity, /me, password hashing | `gerard:api-platform-user` |
 | VichUploader, MediaObject, multipart | `gerard:api-platform-file-upload` |
 | Legacy migration | `gerard:api-platform-upgrade` |
-| Test framework (Pest) | `gerard:tdd-with-pest` |
-| Test framework (PHPUnit) | `gerard:tdd-with-phpunit` |
+| Test framework (Pest or PHPUnit, routed by `test_framework` from session-start) | `gerard:tdd-php` |
 
 ### Step 3 — Implement following the plan
 

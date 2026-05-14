@@ -68,27 +68,11 @@ Announce the detected shape to the user in one line: `gerard: detected shape = <
 
 ## 4. Compose the /goal condition
 
-Hardcoded templates (will move to `skills/meta/goal-patterns/` in Session 5). Pick by shape; substitute `$STORY` and current branch name.
+Templates live in `skills/meta/goal-patterns/SKILL.md` (source of truth). Read that skill via `Skill gerard:goal-patterns`, pick the addendum matching the detected shape, and append it to the base condition. Substitute `<plural>` (from STORY) and `<branch>` (from current symbolic-ref).
 
-**Base condition (always appended)**:
-```
-Goal cleared when:
-  1. gerard-gatekeeper returned VERDICT=APPROVE on its last review
-  2. AppSec bilan in the latest gatekeeper report has no H1/H2 findings open
-  3. all listed test commands pass (status 0 from the session-start runner)
-  4. no anti-patterns flagged by post-tool-use hook in the last 3 tool calls
-```
+The base 4 bullets (gatekeeper APPROVE + AppSec H1/H2 zero + tests green + hook-clean) are non-negotiable — every shape inherits them.
 
-**Shape addenda**:
-- `new-resource` → "5. The new resource is reachable via `GET /api/<plural>` and has at least one functional test."
-- `new-operation` → "5. The new operation has a functional test and is documented in OpenAPI."
-- `new-filter` → "5. The filter is declared in the resource operations array and has a functional test covering at least one positive + one negative case."
-- `new-state-flow` → "5. State Processor/Provider is wired via `processor:` / `provider:` on the operation and unit-tested."
-- `migration` → "5. Doctrine migration applies cleanly + has a down() that reverses it."
-- `bugfix` → "5. A regression test reproduces the bug pre-fix and passes post-fix."
-- `refactor` → "5. Public API surface unchanged; existing tests still pass; no new responsibilities introduced."
-- `security-hardening` → "5. AppSec bilan contains an explicit row for the hardening with status=resolved + reproduction."
-- `generic` → no addendum.
+If the shape is `generic`, no addendum is appended; the base condition stands alone.
 
 ---
 
