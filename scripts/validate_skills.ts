@@ -289,13 +289,23 @@ function validateAgents(): void {
     return;
   }
 
-  const files = fs.readdirSync(AGENTS_DIR);
+  const entries = fs.readdirSync(AGENTS_DIR);
   let validCount = 0;
 
-  for (const file of files) {
-    if (!file.endsWith('.md')) continue;
+  for (const entry of entries) {
+    const entryPath = path.join(AGENTS_DIR, entry);
+    const stat = fs.statSync(entryPath);
 
-    const agentFile = path.join(AGENTS_DIR, file);
+    let agentFile: string;
+    if (stat.isDirectory()) {
+      agentFile = path.join(entryPath, 'agent.md');
+      if (!fs.existsSync(agentFile)) continue;
+    } else if (entry.endsWith('.md')) {
+      agentFile = entryPath;
+    } else {
+      continue;
+    }
+
     const content = fs.readFileSync(agentFile, 'utf-8');
     const frontmatter = parseFrontmatter(content);
 
@@ -321,7 +331,8 @@ function validateAgents(): void {
       });
     }
 
-    // Validate skill references exist
+    // Validate skill references exist. Skills under skills/meta/<name>/ are
+    // referenced as `gerard:meta/<name>` (the path), not just `gerard:<name>`.
     if (frontmatter.skills && Array.isArray(frontmatter.skills)) {
       for (const skill of frontmatter.skills) {
         const skillSlug = skill.replace('gerard:', '');
