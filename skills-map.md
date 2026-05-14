@@ -88,9 +88,9 @@ Full index of the 53 skills shipped by the v1.0 plugin. Each line points to wher
 - `gerard:writing-plans` — Implementation plans.
 - `gerard:executing-plans` — Checkpointed execution.
 
-## Meta (2)
+## Cross-cutting (2)
 
-Cross-cutting tools that don't live under a single API Platform surface. The `meta/` namespace signals "skill used by other skills, agents, or hooks rather than a surface-specific doctrine".
+Skills consumed by other skills, agents, or hooks rather than tied to a single API Platform surface. They live at the top level of `skills/` like all others — Claude Code's plugin loader does not recurse, so a "meta/" sub-namespace would be invisible.
 
-- `gerard:meta/anti-patterns-audit` — Standalone audit of the current diff against API Platform 4.3 + Symfony 7.4+ anti-patterns. Returns a Y/N checklist with `file:line` evidence. **Source of truth** for the 24 base rules. Invoked by `api-implementer` (Step 5 self-audit), `gerard-gatekeeper` (full 39-rule pass), `hooks/post-tool-use.sh` (7-regex fast feedback), and standalone by devs. See [`docs/anti-patterns.md`](docs/anti-patterns.md) for the user-facing narrative.
-- `gerard:meta/goal-patterns` — Templates for the `/goal` condition. 8 story-shape addenda (feature / refactor / migration / hardening / bugfix / perf / docs / appsec) + a generic fallback = 9 patterns total. Used by the `/api` command to compose the `/goal` condition based on the detected story shape. See [`docs/goal-patterns.md`](docs/goal-patterns.md).
+- `gerard:anti-patterns-audit` — Standalone audit of the current diff against API Platform 4.3 + Symfony 7.4+ anti-patterns. Returns a Y/N checklist with `file:line` evidence. **Source of truth** for the 24 base rules. Invoked by `api-implementer` (Step 5 self-audit), `gerard-gatekeeper` (full 39-rule pass), `hooks/post-tool-use.sh` (7-regex fast feedback), and standalone by devs. See [`docs/anti-patterns.md`](docs/anti-patterns.md) for the user-facing narrative.
+- `gerard:goal-patterns` — Templates for the `/goal` condition. 8 story-shape addenda (feature / refactor / migration / hardening / bugfix / perf / docs / appsec) + a generic fallback = 9 patterns total. Used by the `/api` command to compose the `/goal` condition based on the detected story shape. See [`docs/goal-patterns.md`](docs/goal-patterns.md).

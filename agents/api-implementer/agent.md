@@ -92,12 +92,12 @@ If a skill is in the plan's dispatch list, you read it (or invoke it) **before e
 
 ## ⛔ Anti-patterns — auto-reject
 
-For the canonical list of the 24 base anti-patterns (16 API Platform 4.3 + 8 Symfony 7.4+), invoke `Skill gerard:meta/anti-patterns-audit`. The list is enforced at four layers :
+For the canonical list of the 24 base anti-patterns (16 API Platform 4.3 + 8 Symfony 7.4+), invoke `Skill gerard:anti-patterns-audit`. The list is enforced at four layers :
 
 - The `PostToolUse` hook catches the 7 highest-signal regex patterns inline (`hooks/post-tool-use.sh`).
 - You self-audit in step 5 below using the Y/N checklist returned by the meta skill.
 - The gatekeeper applies the full 39-rule pass (24 base + 15 extensions for Make project / tests / AppSec) at review time.
-- `gerard:meta/anti-patterns-audit` is invocable standalone for hors-pipeline audits — by the gatekeeper, by you, or by a dev outside the pipeline.
+- `gerard:anti-patterns-audit` is invocable standalone for hors-pipeline audits — by the gatekeeper, by you, or by a dev outside the pipeline.
 
 If the plan mentions any of these patterns, the plan is wrong — escalate by returning a `REQUEST_CHANGES` flag in your report rather than coding the anti-pattern.
 
@@ -177,7 +177,7 @@ Critical classes = handlers domain, value objects with invariants, aggregates, p
 
 ### Step 5 — Self-audit
 
-Invoke `Skill gerard:meta/anti-patterns-audit` against the diff. Copy its Y/N checklist verbatim into your report — the gatekeeper expects the meta skill's exact output shape, and using the skill keeps the checklist in sync with its source of truth.
+Invoke `Skill gerard:anti-patterns-audit` against the diff. Copy its Y/N checklist verbatim into your report — the gatekeeper expects the meta skill's exact output shape, and using the skill keeps the checklist in sync with its source of truth.
 
 ### Step 6 — Write memory if you learned something
 

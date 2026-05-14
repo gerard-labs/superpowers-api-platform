@@ -197,15 +197,15 @@ If you keep needing this for a non-secret file, rename the file to a non-matchin
 
 ---
 
-## Skill validator rejects `meta/`
+## Skill not found at invocation time
 
-**Symptom** : `npx tsx scripts/validate_skills.ts` reports "Missing SKILL.md" on `skills/meta/`.
+**Symptom** : an agent or command invokes `Skill gerard:foo` and the tool returns "Unknown skill".
 
-**Cause** : the validator originally scanned `skills/<dir>/SKILL.md` strictly, but `skills/meta/` is a namespace (its sub-dirs `meta/anti-patterns-audit/`, `meta/goal-patterns/` are the actual skills).
+**Cause** : Claude Code's plugin loader scans `skills/<name>/SKILL.md` (one level only). A nested layout like `skills/<namespace>/<name>/SKILL.md` is **not** supported — the inner SKILL.md is invisible to the loader.
 
-**Fix** : ensure you're on Session 5's patched validator (commit `73f71f6` or later). The patch adds a `SKILL_NAMESPACES = new Set(['meta'])` and recursion. If you customized the validator and removed the namespace logic, re-add it.
+**Fix** : keep every skill as a direct child of `skills/`. The `name:` field in the frontmatter must match the directory name (e.g. `skills/anti-patterns-audit/SKILL.md` with `name: anti-patterns-audit`, invoked as `gerard:anti-patterns-audit`). If you forked v1.0 and tried to organize skills into sub-namespaces, flatten them.
 
-If you cloned a v0.1 fork, you may need to backport the validator patch from v1.0.
+To verify : `claude --plugin-dir <path> -p "list every gerard:* skill"` should return all skills declared in `skills/`. If a skill is missing, check that it's at the top level.
 
 ---
 

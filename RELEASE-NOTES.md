@@ -23,7 +23,7 @@ This is a big bang. **No back-compat with v0.1.** Read [`docs/migration-v0.1.md`
 
 - `/architect`, `/dev`, `/test`, `/review` — replaced by internal agent dispatch under `/api`.
 - `/api-resource-pipeline`, `/api-resource-ship` — replaced by `/api` + `/api-finalize` (separate steps on purpose).
-- `/self-audit-api` — available as `Skill gerard:meta/anti-patterns-audit`.
+- `/self-audit-api` — available as `Skill gerard:anti-patterns-audit`.
 - 13 atomic `/symfony-*` commands (`/symfony-api-resources`, `/symfony-api-filters`, `/symfony-api-mcp`, `/symfony-api-mutators`, `/symfony-api-errors`, `/symfony-api-upgrade`, `/symfony-voters`, `/symfony-messenger`, `/symfony-cache`, `/symfony-tdd-pest`, `/symfony-tdd-phpunit`, `/symfony-migrations`, `/symfony-fixtures`, `/symfony-doctrine-relations`, `/symfony-check`) — the Skill tool natively invokes the corresponding `gerard:*` skill.
 - `/brainstorm`, `/write-plan`, `/execute-plan` — Claude Code natively supports plan mode + primitives.
 
@@ -41,8 +41,8 @@ This is a big bang. **No back-compat with v0.1.** Read [`docs/migration-v0.1.md`
 
 - `tdd-with-pest` + `tdd-with-phpunit` → fused into `tdd-php`. Routing via `test_framework` from session-start. Both squelettes inline.
 - `bootstrap-check` → absorbed into `daily-workflow`.
-- `skills/meta/anti-patterns-audit/` — new (the standalone ex-`/self-audit-api`).
-- `skills/meta/goal-patterns/` — new (the `/goal` condition templates).
+- `skills/anti-patterns-audit/` — new (the standalone ex-`/self-audit-api`).
+- `skills/goal-patterns/` — new (the `/goal` condition templates).
 
 #### State files & marker protocol removed
 

@@ -148,8 +148,8 @@
 
 | Skill | Scope |
 |---|---|
-| [`gerard:meta/anti-patterns-audit`](../skills/meta/anti-patterns-audit/SKILL.md) | Standalone audit of the current diff against the 24-rule checklist (16 AP 4.3 + 8 Symfony 7.4+). Invocable from gatekeeper, implementer self-audit, or directly. Step 1 collect surface, step 2 7-regex fast pass, step 3 Y/N structured checklist with evidence, step 4 project-overrides cross-check (xhigh only), step 5 markdown output. |
-| [`gerard:meta/goal-patterns`](../skills/meta/goal-patterns/SKILL.md) | `/goal` condition templates : base 4 bullets + 8 shape addenda (new-resource, new-operation, new-filter, new-state-flow, migration, bugfix, refactor, security-hardening) + generic. Consumed by `commands/api.md` step 4. |
+| [`gerard:anti-patterns-audit`](../skills/anti-patterns-audit/SKILL.md) | Standalone audit of the current diff against the 24-rule checklist (16 AP 4.3 + 8 Symfony 7.4+). Invocable from gatekeeper, implementer self-audit, or directly. Step 1 collect surface, step 2 7-regex fast pass, step 3 Y/N structured checklist with evidence, step 4 project-overrides cross-check (xhigh only), step 5 markdown output. |
+| [`gerard:goal-patterns`](../skills/goal-patterns/SKILL.md) | `/goal` condition templates : base 4 bullets + 8 shape addenda (new-resource, new-operation, new-filter, new-state-flow, migration, bugfix, refactor, security-hardening) + generic. Consumed by `commands/api.md` step 4. |
 
 ---
 
@@ -188,7 +188,7 @@ rtk proxy npx tsx scripts/validate_skills.ts
 The validator checks :
 - Frontmatter shape (`name`, `description`, `allowed-tools` required ; `effort` optional)
 - `name` matches the directory
-- For sub-dirs under `skills/meta/` : recurses into each (namespace handling added in Session 5)
+- Cross-cutting skills (`anti-patterns-audit`, `goal-patterns`) live at the top level — Claude Code's plugin loader does not recurse, so a sub-namespace would be invisible.
 - All `allowed-tools` are valid tool names
 
 `scripts/lint_skill_content.ts` adds content-level checks (e.g. no legacy 3.x patterns outside `api-platform-upgrade`).
@@ -198,7 +198,7 @@ The validator checks :
 ## References
 
 - [`agents.md`](agents.md) — which skills each agent declares
-- [`anti-patterns.md`](anti-patterns.md) — the canonical 24-rule checklist (sourced from `meta/anti-patterns-audit`)
-- [`goal-patterns.md`](goal-patterns.md) — the 9 templates (sourced from `meta/goal-patterns`)
+- [`anti-patterns.md`](anti-patterns.md) — the canonical 24-rule checklist (sourced from `anti-patterns-audit`)
+- [`goal-patterns.md`](goal-patterns.md) — the 9 templates (sourced from `goal-patterns`)
 - [`commands.md`](commands.md) — `/api --effort` flag
 - [`v1.0-plan.md`](v1.0-plan.md) section 3c — the 53 → 50 → 53 consolidation story

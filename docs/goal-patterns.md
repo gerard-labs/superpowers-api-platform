@@ -1,6 +1,6 @@
 # Goal patterns
 
-> The `/goal` condition templates used by `/api`. Source of truth lives in `skills/meta/goal-patterns/SKILL.md` ; this doc explains the rationale and gives concrete story examples per shape.
+> The `/goal` condition templates used by `/api`. Source of truth lives in `skills/goal-patterns/SKILL.md` ; this doc explains the rationale and gives concrete story examples per shape.
 
 ## Why a templating layer
 
@@ -241,7 +241,7 @@ These are valid stories but don't fit any specialized shape. The base 4 bullets 
 
 A team that wants a shape we didn't anticipate (e.g. *"performance optimization"*, *"data migration ETL"*) can :
 
-1. Edit `skills/meta/goal-patterns/SKILL.md` and add a new addendum block under `## Shape addenda`.
+1. Edit `skills/goal-patterns/SKILL.md` and add a new addendum block under `## Shape addenda`.
 2. Edit `commands/api.md` step 3 and add the trigger keywords for the new shape.
 3. Re-run `rtk proxy npx tsx scripts/validate_skills.ts` to confirm the validator stays green.
 
@@ -254,7 +254,7 @@ This is one of the few user-edit-friendly extension points in v1.0.
 ```text
 # commands/api.md step 4 (excerpted):
 
-Read Skill gerard:meta/goal-patterns. Pick the addendum matching the detected shape.
+Read Skill gerard:goal-patterns. Pick the addendum matching the detected shape.
 Append it to the base condition. Substitute <plural> (from STORY) and <branch>
 (from current symbolic-ref). Pass the result to /goal as the verifiable condition.
 ```
@@ -265,7 +265,7 @@ The skill returns the full base + all 9 shape addenda in its `high` variant. `/a
 
 ## References
 
-- `skills/meta/goal-patterns/SKILL.md` — the source of truth (templates + composition rules)
+- `skills/goal-patterns/SKILL.md` — the source of truth (templates + composition rules)
 - `commands/api.md` step 4 — the caller that picks the addendum
 - `agents/gerard-gatekeeper/agent.md` — produces the `VERDICT=APPROVE` that satisfies bullet 1
 - `hooks/post-tool-use.sh` — produces the hook-clean signal for bullet 4

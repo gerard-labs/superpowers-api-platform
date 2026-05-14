@@ -128,7 +128,7 @@ The 53 skills are organized by domain. Top-10 by likely-trigger frequency :
 | `gerard:tdd-php` | RED-GREEN-REFACTOR with Pest *or* PHPUnit (routed by `test_framework` from session-start). |
 | `gerard:doctrine-migrations` | Schema versioning, zero-downtime patterns. |
 | `gerard:symfony-voters` | Voter pattern, isolated tests. |
-| `gerard:meta/anti-patterns-audit` | Standalone audit of the current diff against the 24-rule checklist. |
+| `gerard:anti-patterns-audit` | Standalone audit of the current diff against the 24-rule checklist. |
 
 Full catalog (53 skills, table by domain): [`docs/skills.md`](docs/skills.md).
 

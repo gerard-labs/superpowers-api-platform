@@ -252,7 +252,7 @@ Walks `skills/`, `agents/`, `commands/` and validates :
 - `name` matches the directory
 - `allowed-tools` / `tools` are valid tool names
 - `effort:` block is well-formed (optional)
-- Skills under `skills/meta/` are recursively validated as a namespace
+- Every skill lives at `skills/<name>/SKILL.md` (one level only — the plugin loader does not recurse)
 
 Run :
 

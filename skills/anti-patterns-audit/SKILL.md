@@ -5,8 +5,8 @@ description: >
   Platform 4.3 + Symfony 7.4+ anti-patterns. Returns a Y/N checklist with
   evidence (file:line) for each hit. Invocable directly from gerard-gatekeeper
   or api-implementer self-audit; also usable hors-pipeline by a dev who wants a
-  quick lint before opening a PR. Lives under skills/meta/ because it's a
-  cross-cutting tool (not tied to one API Platform surface).
+  quick lint before opening a PR. Cross-cutting tool — not tied to a single
+  API Platform surface.
 allowed-tools:
   - Read
   - Glob
@@ -22,7 +22,7 @@ effort:
 
 > Standalone version of the ex-`/self-audit-api` command (v0.1). Becomes a skill in v1.0 so any caller (Skill tool, gatekeeper, implementer self-audit, ad-hoc dev review) can invoke it without going through the full pipeline.
 
-## When to invoke
+## Use when
 
 - The gatekeeper agent wants a structured pass before composing its VERDICT.
 - The implementer wants to confirm the diff is clean before declaring "Definition of Done".
@@ -35,7 +35,14 @@ One of:
 - `target: branch` — audit `git diff main...HEAD`
 - `target: <glob>` — audit files matching the glob (e.g. `src/**/*.php`)
 
-## Workflow
+## Guardrails
+
+- This skill is read-only — it never modifies files, runs `git commit`, or writes outside the Task return value.
+- It runs against the surface specified by `target`. Never expand silently (e.g. don't audit the whole repo when asked for the diff).
+- If the surface is empty (no `*.php` changes), return an empty report rather than scanning unrelated files.
+- The 24 base rules are the canonical list. Do not invent new ones at runtime — if a new pattern is needed, propose adding it to this SKILL.md or to `.claude/skills/<project>/anti-patterns-audit/SKILL.md`.
+
+## Default workflow
 
 ### Step 1 — Collect the surface
 

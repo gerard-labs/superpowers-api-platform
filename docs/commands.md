@@ -71,7 +71,7 @@ flowchart LR
    | `security-hardening` | "harden", "auth", "JWT", "Voter", "CORS" |
    | `generic` | (fallback) |
 
-4. **Compose the `/goal` condition** by reading `Skill gerard:meta/goal-patterns` and appending the addendum matching the detected shape. See [`goal-patterns.md`](goal-patterns.md).
+4. **Compose the `/goal` condition** by reading `Skill gerard:goal-patterns` and appending the addendum matching the detected shape. See [`goal-patterns.md`](goal-patterns.md).
 5. **Dispatch the architecture stage** via `Task(subagent_type=api-architect-trio, ...)`.
 6. **Interactive checkpoint** (only if `--interactive`) : print the plan and ask "Approve to continue?".
 7. **Launch the native `/goal` loop** : implementer ⇄ gatekeeper, hard cap at 12 turns.

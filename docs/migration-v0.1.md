@@ -26,7 +26,7 @@ That's the most common case. Read on if you used other commands or want the full
 |---|---|
 | `/architect`, `/dev`, `/test`, `/review` (4 commands) | Removed. Internal agent dispatches under `/api`. |
 | `/api-resource-pipeline`, `/api-resource-ship` | Removed. `/api` + `/api-finalize`. |
-| `/self-audit-api` | Removed as command. Available as a skill : `gerard:meta/anti-patterns-audit`. Invoke via `Skill` tool. |
+| `/self-audit-api` | Removed as command. Available as a skill : `gerard:anti-patterns-audit`. Invoke via `Skill` tool. |
 | 13 atomic `/symfony-*` commands (`/symfony-api-resources`, `/symfony-api-filters`, `/symfony-api-mcp`, `/symfony-api-mutators`, `/symfony-api-errors`, `/symfony-api-upgrade`, `/symfony-voters`, `/symfony-messenger`, `/symfony-cache`, `/symfony-tdd-pest`, `/symfony-tdd-phpunit`, `/symfony-migrations`, `/symfony-fixtures`, `/symfony-doctrine-relations`, `/symfony-check`) | All removed. The Skill tool natively invokes the corresponding `gerard:*` skill. Replace `/symfony-api-filters` with `Skill gerard:api-platform-filters` (or just let `/api` dispatch via keyword detection). |
 | `/brainstorm`, `/write-plan`, `/execute-plan` | Removed. Claude Code natively supports plan mode + native primitives. |
 
@@ -56,11 +56,11 @@ That's the most common case. Read on if you used other commands or want the full
 |---|---|
 | `tdd-with-pest` + `tdd-with-phpunit` | **Fused** into `tdd-php` with framework routing via `test_framework` from session-start. Both squelettes inline in one SKILL.md. |
 | `bootstrap-check` | **Absorbed** into `daily-workflow`. |
-| (none) | **Added** : `meta/anti-patterns-audit` (standalone audit), `meta/goal-patterns` (the 9 `/goal` templates). |
+| (none) | **Added** : `anti-patterns-audit` (standalone audit), `goal-patterns` (the 9 `/goal` templates). |
 
-Net : 53 skills in v0.1, 53 skills in v1.0 (different composition — 2 fused, 1 absorbed, 2 new in `meta/`).
+Net : 53 skills in v0.1, 53 skills in v1.0 (different composition — 2 fused, 1 absorbed, 2 new cross-cutting skills `anti-patterns-audit` + `goal-patterns`).
 
-**Effort-routing added** on the 20 `api-platform-*` skills + `tdd-php` + both `meta/*` skills. `/api --effort low|high|xhigh` propagates.
+**Effort-routing added** on the 20 `api-platform-*` skills + `tdd-php` + both cross-cutting skills (`anti-patterns-audit`, `goal-patterns`). `/api --effort low|high|xhigh` propagates.
 
 ### Hooks
 
@@ -131,7 +131,7 @@ cat docs/commands.md            # /api reference
 | `/architect "story"` | (gone) Use `/api "story"` and rely on the internal architect-trio dispatch. For design-only work : `@agent-api-architect-trio` directly. |
 | `/dev` | (gone) Implementer is invoked under `/api`. For ad-hoc impl : `@agent-api-implementer`. |
 | `/review` | (gone) Gatekeeper invoked under `/api`. For ad-hoc review : `@agent-gerard-gatekeeper`. |
-| `/self-audit-api` | `Skill gerard:meta/anti-patterns-audit` |
+| `/self-audit-api` | `Skill gerard:anti-patterns-audit` |
 | `/symfony-api-filters` | `Skill gerard:api-platform-filters` (or just type a story like *"Add a filter on Product"* and let `/api` route it) |
 | `/symfony-tdd-pest` / `/symfony-tdd-phpunit` | `Skill gerard:tdd-php` (auto-routes to your framework) |
 | `/brainstorm` | (gone) Use Claude Code native plan mode. |
@@ -182,7 +182,7 @@ The four commands were thin shells around four agents that always ran in the sam
 
 ### Why was `/self-audit-api` removed?
 
-It's still available — as `Skill gerard:meta/anti-patterns-audit`. Skills are first-class citizens, invocable from any agent or directly by the user via the `Skill` tool. Removing the slash command sheds ceremony without losing the capability.
+It's still available — as `Skill gerard:anti-patterns-audit`. Skills are first-class citizens, invocable from any agent or directly by the user via the `Skill` tool. Removing the slash command sheds ceremony without losing the capability.
 
 ### Why were the 13 `/symfony-*` atomic commands removed?
 

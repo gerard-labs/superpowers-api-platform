@@ -47,13 +47,13 @@ Plugin version remains `0.1.0` in `plugin.json` — bump to `1.0.0` is reserved 
 **Rationale for the user's decision** :
 - All 5 hooks tested in isolation against mock JSON payloads (PreToolUse, PostToolUse, SessionStart, UserPromptSubmit, Stop) — every assertion passed.
 - `npx tsx scripts/validate_skills.ts` parses 53 skills + 3 commands + 3 agents with all skill references resolved (after the F1 validator fix).
-- The `meta/anti-patterns-audit` skill and `gerard-gatekeeper` agent both reference the same 24-rule SoT (no drift after the api-implementer dedup follow-up `bab23b4`).
+- The `anti-patterns-audit` skill and `gerard-gatekeeper` agent both reference the same 24-rule SoT (no drift after the api-implementer dedup follow-up `bab23b4`).
 - The 3 agents' frontmatter (model, effort, maxTurns, skills, memory) is well-formed and references existing skills.
 - `docs/v1.0-plan.md` decisions are locked and the architecture is documented end-to-end in `docs/` (12 files).
 
 **Residual risk accepted** :
 - We have not empirically confirmed that the 3 background workers dispatched by `api-architect-trio` actually run in parallel via `run_in_background: true` + `Monitor`. This depends on Claude Code 2.1.139+ behavior which is validated upstream.
-- We have not empirically confirmed that `/goal` (native loop) converges on the gatekeeper APPROVE first-line in real flow. The condition wording in `commands/api.md` / `skills/meta/goal-patterns/` is reviewed but not run.
+- We have not empirically confirmed that `/goal` (native loop) converges on the gatekeeper APPROVE first-line in real flow. The condition wording in `commands/api.md` / `skills/goal-patterns/` is reviewed but not run.
 - We have not empirically confirmed memory accumulation between two consecutive `/api` runs (covered by Test 4 — also skipped).
 
 These risks are partially mitigated by :
@@ -81,7 +81,7 @@ These risks are partially mitigated by :
 
 So the plan énoncé for Test 2 is imprecise — it expects the PostToolUse hook to catch `#[ApiFilter]`, but by design it doesn't. The pattern is still caught downstream :
 
-- The implementer **self-audit** in Step 5 invokes `Skill gerard:meta/anti-patterns-audit` whose checklist has the rule.
+- The implementer **self-audit** in Step 5 invokes `Skill gerard:anti-patterns-audit` whose checklist has the rule.
 - The gatekeeper applies the full 39-rule pass with rule 1 = "no `#[ApiFilter]`".
 - Either layer returns `REQUEST_CHANGES`, the loop iterates, the implementer rewrites to `parameters: [new QueryParameter(...)]`.
 
@@ -93,7 +93,7 @@ So the plan énoncé for Test 2 is imprecise — it expects the PostToolUse hook
 | `// TODO: implement` | `block` with reason "TODO/FIXME forbidden" | ✅ |
 | `#[ApiFilter(SearchFilter::class, ...)]` | (no block — not in the 7-regex subset by design) | ✅ (matches doc) |
 
-**Verdict** : the hook is conformant with `docs/anti-patterns.md`. The `#[ApiFilter]` catch is delegated to the implementer self-audit (via `meta/anti-patterns-audit`) and to the gatekeeper full pass. The interactive Test 2 (when user runs it) will confirm that **a** layer of the pipeline blocks the pattern — that is the real contract.
+**Verdict** : the hook is conformant with `docs/anti-patterns.md`. The `#[ApiFilter]` catch is delegated to the implementer self-audit (via `anti-patterns-audit`) and to the gatekeeper full pass. The interactive Test 2 (when user runs it) will confirm that **a** layer of the pipeline blocks the pattern — that is the real contract.
 
 The plan énoncé wording should be reinterpreted as "some pipeline layer blocks", not specifically "the PostToolUse hook blocks". No code change required.
 
@@ -183,6 +183,7 @@ The command is a markdown contract that Claude Code interprets : the `!` bang-co
 | F2 | `.env.dist` denied by PreToolUse — false positive on a conventional example file. | Low UX | Documented. Defer to v1.1. |
 | F3 | Plan énoncé for Test 2 ("PostToolUse blocks `#[ApiFilter`") is imprecise. Hook intentionally has only 7 high-signal regexes per `docs/anti-patterns.md`. `#[ApiFilter]` is rule 1 of the gatekeeper. | None (doc-aligned) | Reinterpret the plan énoncé. No code change. |
 | F4 | UserPromptSubmit hook : keyword `search` matches `filter\|search\|sort\|order` → `api-platform-filters` even when context is McpTool search. False positive on hint only — not blocking. | Low | Defer to v1.1. |
+| F5 | **Claude Code's plugin loader does not recurse into `skills/`** — `skills/meta/<name>/SKILL.md` was invisible at runtime. Caught by an empirical smoke test (`claude -p --plugin-dir <path>`) that returned 51 instead of 53 skills. **rc1 included this bug.** Every `gerard:meta/*` invocation would have failed with "Unknown skill". | **Critical** (would have broken `/api` pipeline) | **Fixed** — flattened both skills (`anti-patterns-audit`, `goal-patterns`) to `skills/<name>/`. All references updated across the codebase (agents, commands, docs, README, RELEASE-NOTES, CONTRIBUTING, skills-map, v1.0-plan, tests, scripts). Linter parser fixed (was matching only single-line descriptions ; now handles YAML block scalars). Skills' `Use when` / `Default workflow` / `Guardrails` / `Output contract` sections completed (previously hidden by the `meta/` sub-namespace and thus untested). Re-tagged **v1.0.0-rc2** on the fix commit. |
 
 ---
 
@@ -198,12 +199,15 @@ Tests 1 and 4 were **skipped by user decision** (see their sections). The remain
 
 ## Verdict
 
-**READY for v1.0.0-rc1 tag.**
+**READY for v1.0.0-rc2 tag.** Initial rc1 (`e590af7`) contained the critical F5 bug — replaced by rc2 on the fix commit.
 
 The user has accepted the residual risk of skipping the two interactive E2E scenarios (Test 1 happy path, Test 4 memory accumulation). The static + isolation validation is comprehensive enough to ship a release candidate, with the explicit understanding that any regression observed by the first real-world `/api` run will trigger a v1.0.1 patch.
 
-Next actions :
-1. Bump `plugin.json` and `marketplace.json` version to `1.0.0`.
-2. Final commit "v1.0: E2E test passed, release candidate".
-3. Tag `v1.0.0-rc1`.
-4. Await user validation for the production `v1.0.0` tag and the merge into `main`.
+The new empirical smoke test that caught F5 — `claude -p --plugin-dir <path> "list every gerard:* skill"` from inside the fixture — now serves as the v1.0 "is the plugin loadable" gate. It returned 56 items (3 commands + 53 skills) on the fixed rc2, confirming the loader sees every artifact.
+
+Next actions (all gated on user) :
+1. Push commits to `origin/v1.0` (rc2 still local at the time of this report).
+2. Push `v1.0.0-rc2` tag.
+3. After soak time : tag `v1.0.0` on the rc2 commit.
+4. Merge `v1.0` into `main` with `--no-ff`.
+5. Push `main` + tags to origin.

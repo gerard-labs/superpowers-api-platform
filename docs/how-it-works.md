@@ -91,7 +91,7 @@ If any check fails, `/api` stops and tells the user explicitly.
 
 ## Stage 2 — `/goal` composition
 
-The `/goal` condition is composed by reading `skills/meta/goal-patterns/SKILL.md` (the source of truth) and appending the addendum matching the detected story shape.
+The `/goal` condition is composed by reading `skills/goal-patterns/SKILL.md` (the source of truth) and appending the addendum matching the detected story shape.
 
 **Base condition (always present, 4 bullets)** :
 

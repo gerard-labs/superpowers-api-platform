@@ -331,8 +331,8 @@ function validateAgents(): void {
       });
     }
 
-    // Validate skill references exist. Skills under skills/meta/<name>/ are
-    // referenced as `gerard:meta/<name>` (the path), not just `gerard:<name>`.
+    // Validate skill references exist. The plugin loader scans
+    // skills/<name>/SKILL.md (one level only) — sub-namespaces are unsupported.
     if (frontmatter.skills && Array.isArray(frontmatter.skills)) {
       for (const skill of frontmatter.skills) {
         const skillSlug = skill.replace('gerard:', '');

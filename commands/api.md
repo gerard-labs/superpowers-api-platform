@@ -68,7 +68,7 @@ Announce the detected shape to the user in one line: `gerard: detected shape = <
 
 ## 4. Compose the /goal condition
 
-Templates live in `skills/meta/goal-patterns/SKILL.md` (source of truth). Read that skill via `Skill gerard:goal-patterns`, pick the addendum matching the detected shape, and append it to the base condition. Substitute `<plural>` (from STORY) and `<branch>` (from current symbolic-ref).
+Templates live in `skills/goal-patterns/SKILL.md` (source of truth). Read that skill via `Skill gerard:goal-patterns`, pick the addendum matching the detected shape, and append it to the base condition. Substitute `<plural>` (from STORY) and `<branch>` (from current symbolic-ref).
 
 The base 4 bullets (gatekeeper APPROVE + AppSec H1/H2 zero + tests green + hook-clean) are non-negotiable — every shape inherits them.
 

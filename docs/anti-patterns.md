@@ -4,7 +4,7 @@
 
 ## Why this doc exists
 
-In v0.1, anti-pattern lists were duplicated across several artefacts (reviewer agent, implementer agent, self-audit command, runtime regex hook). They drifted apart over time. In v1.0, the canonical list lives in **one place** : `skills/meta/anti-patterns-audit/SKILL.md`. This doc is its user-facing narrative, plus the extensions (tests, AppSec, Make project conventions) that the gatekeeper applies on top.
+In v0.1, anti-pattern lists were duplicated across several artefacts (reviewer agent, implementer agent, self-audit command, runtime regex hook). They drifted apart over time. In v1.0, the canonical list lives in **one place** : `skills/anti-patterns-audit/SKILL.md`. This doc is its user-facing narrative, plus the extensions (tests, AppSec, Make project conventions) that the gatekeeper applies on top.
 
 ## Where each rule is enforced
 
@@ -12,7 +12,7 @@ In v0.1, anti-pattern lists were duplicated across several artefacts (reviewer a
 |---|---|---|
 | **PostToolUse hook** (`hooks/post-tool-use.sh`) | Deterministic, inline, blocks the Write/Edit | The 7 highest-signal regex patterns (subset of rules 1-24) |
 | **Implementer self-audit** (step 5 of `api-implementer/agent.md`) | Y/N checklist filled in the DoD report | Full 24 base rules |
-| **`gerard:meta/anti-patterns-audit` skill** (invocable hors-pipeline) | Y/N checklist with file:line evidence | Full 24 base rules + `xhigh` project overrides |
+| **`gerard:anti-patterns-audit` skill** (invocable hors-pipeline) | Y/N checklist with file:line evidence | Full 24 base rules + `xhigh` project overrides |
 | **gerard-gatekeeper** (review stage) | Auto-`VERDICT: REQUEST_CHANGES` on any hit | All 39 rules (24 base + 15 extensions) |
 
 A single violation in the gatekeeper's pass = `VERDICT: REQUEST_CHANGES`. No "follow-up" path for these.
@@ -80,7 +80,7 @@ These are the rules the `PostToolUse` hook scans inline on every `*.php` write. 
 | 6 | `(localhost\|127\.0\.0\.1)` in non-test code | (hard-coded URL — outside the base 24 but caught) |
 | 7 | (reserved — extend in your fork) | — |
 
-Source : `skills/meta/anti-patterns-audit/SKILL.md` step 2. The hook script is `hooks/post-tool-use.sh`.
+Source : `skills/anti-patterns-audit/SKILL.md` step 2. The hook script is `hooks/post-tool-use.sh`.
 
 ---
 
@@ -257,7 +257,7 @@ If any answer is "N" without justification, the gatekeeper rejects.
 Hors-pipeline (e.g. before opening a PR by hand) :
 
 ```text
-Skill gerard:meta/anti-patterns-audit
+Skill gerard:anti-patterns-audit
 ```
 
 The skill takes a target :
@@ -280,7 +280,7 @@ Example use case : a project enforces "no `Assert\Email` without `mode: strict` 
 
 ## References
 
-- `skills/meta/anti-patterns-audit/SKILL.md` — the canonical skill (source of truth)
+- `skills/anti-patterns-audit/SKILL.md` — the canonical skill (source of truth)
 - `hooks/post-tool-use.sh` — the 7-regex inline subset
 - `agents/api-implementer/agent.md` step 5 — self-audit checklist
 - `agents/gerard-gatekeeper/agent.md` — the 39-rule review checklist

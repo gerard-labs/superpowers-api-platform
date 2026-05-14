@@ -4,9 +4,8 @@ description: >
   Catalog of `/goal` condition templates used by `/api`. One base condition
   + 5 shape-specific addenda (new-resource, new-operation, new-filter,
   new-state-flow, migration). The `/api` command reads these templates at
-  step 4 to compose the final goal condition. Lives under skills/meta/
-  because it's wiring (consumed by a command, not by an agent's per-surface
-  doctrine).
+  step 4 to compose the final goal condition. Wiring skill (consumed by a
+  command, not by an agent's per-surface doctrine).
 allowed-tools:
   - Read
 effort:
@@ -18,6 +17,30 @@ effort:
 # /goal condition templates
 
 > Source of truth for the `/goal` conditions that drive `/api`. Until v0.1, these were hardcoded inside `commands/api.md` (step 4). In v1.0 they live here so the command stays thin and templates can be reused (e.g. an external dev script that wraps `/api` can read the same set).
+
+## Use when
+
+- `commands/api.md` step 4 needs to compose the `/goal` condition based on the detected story shape.
+- An external wrapper script wants to reuse the same `/goal` semantics outside the `/api` flow.
+- A contributor edits this catalog to add a new shape.
+
+## Guardrails
+
+- The 4 base bullets (`gerard-gatekeeper APPROVE` / `AppSec H1+H2 resolved` / `tests pass` / `no recent anti-pattern flags`) are non-negotiable. Every shape inherits them — never drop or weaken a base bullet for a specific story.
+- Hard cap is 12 turns on the `/goal` invocation itself (decision verrouillée — section 1 row 7). Don't render conditions that imply more turns.
+- Avoid hedge words in rendered text ("ideally", "if possible", "best effort") — the Haiku evaluator reads verbatim and a softened bullet weakens the gate.
+- Substitute `<plural>` and `<branch>` placeholders before passing to `/goal`. The caller (`commands/api.md` step 4) has both values in scope.
+
+## Default workflow
+
+1. Read this SKILL.md.
+2. Determine the story shape from the user's `/api` argument (the caller does this in step 3 of `commands/api.md`).
+3. Compose the final condition string : base 4 bullets + the addendum matching the shape, with placeholders substituted.
+4. Hand the string to the native `/goal` primitive.
+
+## Output contract
+
+The skill response is the rendered condition string — base 4 bullets concatenated with the matching shape addendum (bullet 5), placeholders resolved. The caller passes it directly to `/goal`. No state file, no marker protocol.
 
 ## Base condition (always appended)
 
