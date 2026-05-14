@@ -1,0 +1,8 @@
+node_modules/
+*.log
+.DS_Store
+.idea/
+.vscode/
+
+# Pipeline state files (runtime, not source)
+.claude/last-api-*.md

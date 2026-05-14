@@ -1,0 +1,14 @@
+{
+  "name": "symfony-plugin-scripts",
+  "private": true,
+  "description": "Validation and lint scripts for the gerard Claude Code plugin (superpowers-api-platform).",
+  "scripts": {
+    "validate": "tsx scripts/validate_skills.ts",
+    "lint": "tsx scripts/lint_skill_content.ts",
+    "check": "tsx scripts/validate_skills.ts && tsx scripts/lint_skill_content.ts"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.0"
+  }
+}

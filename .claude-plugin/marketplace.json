@@ -1,0 +1,46 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "superpowers-api-platform",
+  "description": "Claude Code plugin targeting API Platform 4.3+ on Symfony 7.4+ : resources, DTOs, state providers/processors, modern filters (parameters + QueryParameter), security (JWT/OIDC/CORS), MCP, Object Mapper, Resource/Operation Mutators, Scalar UI, ErrorResource, identifiers (UUID v7/ULID), resilience, performance, and tests.",
+  "owner": {
+    "name": "gerard-labs",
+    "email": "s.dieunidou@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "gerard",
+      "source": {
+        "source": "github",
+        "repo": "gerard-labs/superpowers-api-platform"
+      },
+      "description": "API Platform 4.3+ toolkit for Claude Code: modern filters, MCP, Object Mapper, Scalar, Mutators, ErrorResource, JWT/OIDC, plus Symfony 7.4+ core (TDD, Doctrine, Messenger, voters, rate limiting, quality checks).",
+      "version": "0.1.0",
+      "author": {
+        "name": "gerard-labs"
+      },
+      "homepage": "https://github.com/gerard-labs/superpowers-api-platform",
+      "repository": "https://github.com/gerard-labs/superpowers-api-platform",
+      "license": "MIT",
+      "keywords": [
+        "api-platform",
+        "api-platform-4.3",
+        "symfony",
+        "symfony-7.4",
+        "php",
+        "doctrine",
+        "mcp",
+        "object-mapper",
+        "scalar"
+      ],
+      "category": "frameworks",
+      "tags": [
+        "api-platform",
+        "symfony",
+        "php",
+        "backend",
+        "tdd",
+        "doctrine"
+      ]
+    }
+  ]
+}

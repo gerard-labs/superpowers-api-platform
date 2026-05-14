@@ -1,0 +1,33 @@
+{
+  "name": "gerard",
+  "version": "0.1.0",
+  "description": "A Claude Code plugin for API Platform 4.3+ on Symfony 7.4+ — resources, DTOs, state providers/processors, filters (parameters pattern), security (JWT/OIDC/CORS), MCP, Object Mapper, Mutators, Scalar UI, ErrorResource, identifiers (UUID v7/ULID), resilience, performance, and exhaustive tests",
+  "author": {
+    "name": "gerard-labs"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/gerard-labs/superpowers-api-platform",
+  "repository": "https://github.com/gerard-labs/superpowers-api-platform.git",
+  "keywords": [
+    "api-platform",
+    "api-platform-4.3",
+    "symfony",
+    "symfony-7.4",
+    "php",
+    "doctrine",
+    "mcp",
+    "object-mapper",
+    "scalar",
+    "jwt",
+    "oidc",
+    "messenger",
+    "tdd",
+    "pest",
+    "phpunit",
+    "foundry",
+    "rector",
+    "deptrac",
+    "claude-code",
+    "claude-code-plugin"
+  ]
+}

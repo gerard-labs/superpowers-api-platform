@@ -1,0 +1,9 @@
+name: smile-test
+domain: k8s.example.com
+boilerplate_version: 1.1.4
+registry: registry.example.com
+registry_namespace: smile-test
+docker_dir: docker
+solutions:
+    gerard:
+        symfony_version: "8"

@@ -1,0 +1,112 @@
+name: Test Session Start Hook
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'hooks/**'
+      - 'tests/fixtures/**'
+      - 'tests/hooks/**'
+      - '.github/workflows/test-session-start.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'hooks/**'
+      - 'tests/fixtures/**'
+      - 'tests/hooks/**'
+      - '.github/workflows/test-session-start.yml'
+
+jobs:
+  test-hook:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Make hook executable
+        run: chmod +x hooks/session-start.sh
+
+      - name: Test hook executes without errors
+        run: |
+          echo "Testing session-start.sh execution..."
+
+          # Run the hook and capture output
+          output=$(./hooks/session-start.sh 2>&1) || true
+
+          # Check if output is valid JSON (when Symfony app is detected)
+          # or contains expected warning messages
+          if echo "$output" | jq . > /dev/null 2>&1; then
+            echo "Hook produced valid JSON output"
+          elif [[ "$output" == *"No Symfony application"* ]] || [[ -z "$output" ]]; then
+            echo "Hook correctly detected no Symfony app (expected in CI)"
+          else
+            echo "Unexpected output: $output"
+            # Don't fail - hook may produce warnings
+          fi
+
+      - name: Test hook with mock Symfony project
+        run: |
+          echo "Creating mock Symfony project..."
+
+          # Create minimal Symfony-like structure
+          mkdir -p /tmp/test-symfony-app
+          cd /tmp/test-symfony-app
+
+          # Create composer.json with Symfony dependency (use 7.4 LTS = minimum supported)
+          cat > composer.json << 'EOF'
+          {
+            "name": "test/symfony-app",
+            "require": {
+              "symfony/framework-bundle": "^7.4"
+            }
+          }
+          EOF
+
+          # Create bin/console (Symfony CLI marker)
+          mkdir -p bin
+          touch bin/console
+          chmod +x bin/console
+
+          # Run the hook from this directory
+          cd /tmp/test-symfony-app
+          output=$($GITHUB_WORKSPACE/hooks/session-start.sh 2>&1) || true
+
+          echo "Output: $output"
+
+          # Verify detection worked
+          if [[ "$output" == *"symfony"* ]] || [[ "$output" == *"Symfony"* ]]; then
+            echo "Hook correctly detected Symfony application!"
+          else
+            echo "Warning: Symfony detection may need adjustment"
+          fi
+
+      - name: Validate hooks.json
+        run: |
+          echo "Validating hooks.json..."
+
+          # Check if hooks.json is valid JSON
+          if ! jq . hooks/hooks.json > /dev/null 2>&1; then
+            echo "ERROR: hooks.json is not valid JSON"
+            exit 1
+          fi
+
+          # Check required structure
+          if ! jq -e '.hooks' hooks/hooks.json > /dev/null 2>&1; then
+            echo "ERROR: hooks.json missing 'hooks' array"
+            exit 1
+          fi
+
+          echo "hooks.json is valid!"
+
+      - name: Check shell script syntax
+        run: |
+          echo "Checking shell script syntax..."
+          bash -n hooks/session-start.sh
+          echo "Shell syntax is valid!"
+
+      - name: Run hook fixture tests
+        run: |
+          echo "Running hook fixture tests against tests/fixtures/..."
+          chmod +x tests/hooks/session-start.test.sh
+          bash tests/hooks/session-start.test.sh

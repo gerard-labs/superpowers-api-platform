@@ -1,0 +1,7 @@
+{
+  "name": "test/monorepo-symfony",
+  "require": {
+    "symfony/framework-bundle": "^7.4",
+    "api-platform/symfony": "^4.3"
+  }
+}

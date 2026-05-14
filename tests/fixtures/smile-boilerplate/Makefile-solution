@@ -1,0 +1,34 @@
+SHELL=/bin/bash
+
+.PHONY: console composer tests ci quality migrations migrations-diff fixtures-load
+
+##@ Symfony
+
+console: ##                     Symfony console
+	docker compose run --rm php bin/console $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+	@:
+
+composer: ##                    Composer wrapper
+	docker compose run --rm php composer $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
+	@:
+
+migrations: ##                  Run Doctrine migrations
+	docker compose run --rm php bin/console doctrine:migrations:migrate --no-interaction
+
+migrations-diff: ##             Generate migration diff
+	docker compose run --rm php bin/console doctrine:migrations:diff --no-interaction
+
+fixtures-load: ##               Load Doctrine fixtures
+	docker compose run --rm php bin/console doctrine:fixtures:load --no-interaction
+
+##@ Quality
+
+quality: ##                     Lint + PHPStan + CS-Fixer
+	docker compose run --rm php ./vendor/bin/phpstan analyse
+
+tests: ##                       PHPUnit
+	docker compose run --rm php ./vendor/bin/phpunit
+
+ci: ##                          Full CI pipeline
+	$(MAKE) quality
+	$(MAKE) tests

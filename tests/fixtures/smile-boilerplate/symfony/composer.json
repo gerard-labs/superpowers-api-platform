@@ -1,0 +1,7 @@
+{
+  "name": "test/smile-boilerplate",
+  "require": {
+    "symfony/framework-bundle": "^8.0",
+    "api-platform/symfony": "^4.3"
+  }
+}
